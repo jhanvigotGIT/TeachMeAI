@@ -1,0 +1,24 @@
+.chat-box{
+
+    margin-top:40px;
+    padding:25px;
+    border-radius:15px;
+    background:white;
+
+}
+
+.chat-box textarea{
+
+    width:100%;
+    min-height:120px;
+    resize:vertical;
+    padding:15px;
+    margin-top:15px;
+
+}
+
+.chat-box button{
+
+    margin-top:20px;
+
+}

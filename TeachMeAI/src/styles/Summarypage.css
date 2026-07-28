@@ -1,0 +1,16 @@
+.summary-page{
+    min-height: 100vh;
+    background: #f7f9fc;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 40px 20px;
+}
+.summary-container{
+    width: 100%;
+    max-width: 1250px;
+    background: rgb(211, 224, 243);
+    border-radius: 20px;
+    padding: 35px;
+    box-shadow: 0 0px 25px rgba(177, 172, 172, 0.8);
+}

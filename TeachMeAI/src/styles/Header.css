@@ -1,0 +1,18 @@
+.header{
+    text-align: center;
+    margin-bottom: 50px;
+    padding: 30px 20px;
+}
+.header h1{
+    font-size: 3.5rem;
+    color:#111827;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+.header h1 span{
+    color: #2563eb;
+}
+.header p{
+    font-size: 1.2rem;
+    color: #6b7280;
+}

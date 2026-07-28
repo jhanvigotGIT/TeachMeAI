@@ -1,0 +1,43 @@
+.loading-container{
+    display: flex;
+    justify-content: center;
+    margin: 30px 0;
+    animation:fadeIn 0.4s ease;
+}
+.loading-card{
+    width: 100%;
+    max-width: 700px;
+    background: linear-gradient(135deg,#1e3a8a,#2563eb);
+    border-radius: 18px;
+    padding: 28px 35px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+    color: rgb(22, 130, 231);
+}
+.loading-card h3{
+    margin: 0 0 22px 0;
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+}
+.loading-card p{
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 14px 0;
+    font-size: 18px;
+    font-weight: 500;
+}
+@keyframes fadeIn{
+    from{
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to{
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+.active-step{
+    font-weight: 700;
+    color: #ffffff;
+}

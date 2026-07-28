@@ -1,0 +1,100 @@
+.modal-overlay{
+
+    position:fixed;
+    inset:0;
+
+    background:rgba(0,0,0,.45);
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    z-index:999;
+
+    transition:all .3s ease;
+}
+
+.modal-overlay.show{
+
+    opacity:1;
+
+    visibility:visible;
+}
+
+.modal-overlay.hide{
+
+    opacity:0;
+
+    visibility:hidden;
+}
+.tool-modal{
+
+    width:85%;
+    height:85%;
+
+    background:white;
+
+    border-radius:22px;
+
+    overflow:hidden;
+
+    box-shadow:0 25px 60px rgba(0,0,0,.3);
+
+    transition:all .3s ease;
+}
+.tool-modal.show{
+
+    transform:scale(1);
+
+    opacity:1;
+}
+
+.tool-modal.hide{
+
+    transform:scale(.92);
+
+    opacity:0;
+}
+.tool-modal-header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    padding:18px 30px;
+
+    background:#5B5FEF;
+
+    color:white;
+}
+
+.tool-modal-body{
+
+    padding:30px;
+
+    overflow:auto;
+
+    height:calc(100% - 75px);
+    transition:0.2s;
+}
+.close-btn{
+
+    border:none;
+
+    background:none;
+
+    color:white;
+
+    font-size:24px;
+
+    cursor:pointer;
+
+    transition:.2s;
+}
+
+.close-btn:hover{
+
+    transform:scale(1.15) rotate(90deg);
+}

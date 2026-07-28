@@ -1,0 +1,137 @@
+.uploadBox{
+    background: white;
+    border: 2px dashed #2563eb;
+    border-radius: 16px;
+    padding: 50px 30px;
+    text-align: center;
+    margin-bottom: 40px;
+    transition: 0.3s;
+    cursor: pointer;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+}
+.uploadBox:hover{
+    background: #f8fbff;
+    border-color: #2563eb;
+    transform: translateY(-3px);
+}
+.uploadIcon {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    background-color: #eef4ff;
+    color: #2563eb;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    font-size: 40px;
+    font-weight: bold;
+
+    margin: 0 auto 20px;
+}
+.uploadBox h2{
+    color: #1f2937;
+    margin-bottom: 10px;
+}
+.uploadBox p{
+    color: #6b7280;
+    margin-bottom: 10px;
+}
+.uploadBox span{
+    display: block;
+    margin: 15px 0;
+    color: #888;
+}
+.uploadbtn{
+    display:inline-block;
+    padding:14px 30px;
+    background:linear-gradient(135deg,#2563eb,#3b82f6);
+    color:white;
+    border-radius:12px;
+    cursor:pointer;
+    font-weight:600;
+    transition:.3s;
+    margin-top: 20px;
+}
+
+.uploadbtn:hover{
+    transform:translateY(-2px);
+    box-shadow:0 12px 25px rgba(37,99,235,.25);
+}
+.fileinfo{
+   display:flex;
+   flex-direction: column;
+   gap: 20px;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    padding:18px;
+
+    margin-top:20px;
+
+    border-radius:15px;
+
+    background:#f8faff;
+
+    border:1px solid #3464c4;
+}
+.fileinfo p{
+    margin: 5px 0;
+}
+.file-top{
+    display: flex;
+    align-items: center;
+}
+.file-icon{
+
+    font-size:42px;
+
+    margin-right:18px;
+
+}
+.fileHeader{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.file-details{
+
+    flex:1;
+
+}
+.file-details h3{
+
+    margin:0;
+
+    font-size:18px;
+
+}
+.file-details p{
+
+    margin:6px 0;
+
+    color:#777;
+
+}
+.success-tag{
+
+    display:inline-block;
+
+    background:#dcfce7;
+
+    color:#15803d;
+
+    padding:5px 12px;
+
+    border-radius:20px;
+
+    font-size:13px;
+
+    font-weight:600;
+
+}
+ 
+
