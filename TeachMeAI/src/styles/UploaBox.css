@@ -133,5 +133,27 @@
     font-weight:600;
 
 }
+.startLearningBtn {
+    display: block;
+    margin: 25px auto 0;
+    padding: 14px 28px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #1d4ed8, #3b82f6);
+    color: white;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.startLearningBtn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 22px rgba(37, 99, 235, 0.25);
+}
+
+.startLearningBtn:active {
+    transform: translateY(0);
+}
  
 

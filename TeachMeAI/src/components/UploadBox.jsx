@@ -1,15 +1,38 @@
-import React, { useRef, useState } from 'react'
+import React, { useRef, useState, useEffect } from 'react'
 import "../styles/UploaBox.css"
-import { extractTextFromPDF } from '../services/pdfService';
-function UploadBox({ setPdfText }) {
+import { extractTextFromPDF } from "../services/pdfService";
+
+function UploadBox({ setPdfText,onContinue  }) {
     const [pdf, setpdf] = useState(null);
     const fileInputRef = useRef(null);
+    const [isExtracted, setIsExtracted] = useState(false);
     const [pdfText, setpdfText] = useState("");
+    const continueBtnRef = useRef(null);
     const handleFile = async (file) => {
-        setpdf(file);
-        const text = await extractTextFromPDF(file);
-        setPdfText(text);
+    setpdf(file);
+    setIsExtracted(false);
+
+    const text = await extractTextFromPDF(file);
+
+    console.log("Extracted PDF text length:", text.length);
+    console.log("Extracted PDF text:", text.substring(0, 300));
+
+    setPdfText(text);
+    setIsExtracted(true);
+}
+useEffect(() => {
+    if (isExtracted && continueBtnRef.current) {
+        setTimeout(() => {
+            const buttonPosition = continueBtnRef.current.getBoundingClientRect().top;
+
+            window.scrollBy({
+                top: buttonPosition - 120,
+                behavior: "smooth"
+            });
+        }, 200);
     }
+}, [isExtracted]);
+
     return (
         <div className='uploadBox'
             onDragOver={(e) => e.preventDefault()}
@@ -47,10 +70,19 @@ function UploadBox({ setPdfText }) {
                             </span>
                         </div>
                     </div>
-                    
+
                 </div>
             )}
             <label htmlFor='pdfUpload' className='uploadbtn'>{pdf ? "🔁 Replace PDF" : "Browse PDF"}</label>
+            {isExtracted && (
+    <button
+         ref={continueBtnRef}
+        className="startLearningBtn"
+        onClick={onContinue}
+    >
+        ✨ Choose How to Learn →
+    </button>
+)}
 
         </div>
 

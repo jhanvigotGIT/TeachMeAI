@@ -10,7 +10,7 @@
 }
 .responseBox:hover{
     transform: translateY(-2px);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.12);
 }
 .responseCon{
     min-height: 220px;
@@ -279,4 +279,153 @@
     0%{opacity:0.3;}
     50%{opacity:1;}
     100%{opacity:0.3;}
+}
+
+/* Main AI response box */
+.responseBox {
+    width: 100%;
+    box-sizing: border-box;
+    min-width: 0;
+}
+
+/* AI response content area */
+.responseCon {
+    width: 100%;
+    box-sizing: border-box;
+    min-width: 0;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+}
+
+/* AI and user message containers */
+.ai-message,
+.user-message {
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    overflow-wrap: anywhere;
+}
+
+/* Proper bullet point formatting */
+.responseCon ul,
+.responseCon ol {
+    padding-left: 28px;
+    margin: 12px 0 20px;
+}
+
+.responseCon li {
+    margin-bottom: 9px;
+    padding-left: 4px;
+    line-height: 1.7;
+}
+
+/* Proper Markdown table formatting */
+.responseCon table {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    border-collapse: collapse;
+    margin: 20px 0;
+    white-space: normal;
+}
+
+.responseCon th,
+.responseCon td {
+    border: 1px solid #dbe3ef;
+    padding: 12px 15px;
+    text-align: left;
+    min-width: 110px;
+    line-height: 1.6;
+}
+
+.responseCon th {
+    background: #eaf1ff;
+    color: #1e3a5f;
+    font-weight: 700;
+}
+
+.responseCon tr:nth-child(even) {
+    background: #f8faff;
+}
+
+/* Table text should wrap */
+.responseCon td {
+    overflow-wrap: anywhere;
+}
+
+/* Headings */
+.responseCon h1,
+.responseCon h2,
+.responseCon h3,
+.responseCon h4 {
+    color: #1e3a5f;
+    line-height: 1.4;
+    overflow-wrap: break-word;
+}
+
+/* Paragraphs */
+.responseCon p {
+    line-height: 1.8;
+    margin-bottom: 16px;
+}
+
+/* Images and code should stay inside the response */
+.responseCon img,
+.responseCon pre {
+    max-width: 100%;
+}
+
+.responseCon pre {
+    overflow-x: auto;
+}
+
+.responseCon code {
+    overflow-wrap: anywhere;
+}
+
+/* VOICE NARRATION CONTROLS */
+
+.voice-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.voice-controls button {
+    padding: 9px 15px;
+    border: 1px solid #c7d2fe;
+    border-radius: 9px;
+    background: #eef2ff;
+    color: #3730a3;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.voice-controls button:hover:not(:disabled) {
+    background: #4f46e5;
+    color: white;
+}
+
+.voice-controls button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+.speech-speed {
+    padding: 9px 12px;
+    border: 1px solid #c7d2fe;
+    border-radius: 9px;
+    background: #eef2ff;
+    color: #3730a3;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    outline: none;
+}
+
+.speech-speed:focus {
+    border-color: #4f46e5;
 }

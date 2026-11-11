@@ -1,0 +1,68 @@
+.promptPage {
+    min-height: 100vh;
+    width: 100%;
+    padding: 30px 20px;
+    box-sizing: border-box;
+}
+
+.promptPageContainer {
+    max-width: 1100px;
+    margin: auto;
+    position: relative;
+}
+
+.backBtn {
+    position: absolute;
+    top: 0;
+    right: 1;
+    margin: 0;
+
+    padding: 10px 18px;
+    border: 1px solid #dbe5f1;
+    border-radius: 25px;
+
+    background: white;
+    color: #183153;
+
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+
+    transition: all 0.3s ease;
+}
+
+.backBtn:hover {
+    background: #e8eef7;
+    transform: translateX(-3px);
+}
+
+.promptPageContent {
+    text-align: center;
+    margin: 30px auto;
+}
+
+.promptPageContent h1 {
+    font-size: 32px;
+    color: #183153;
+    margin-bottom: 10px;
+}
+
+.promptPageContent p {
+    font-size: 16px;
+    color: #64748b;
+    margin-bottom: 30px;
+}
+
+@media (max-width: 600px) {
+    .promptPage {
+        padding: 20px 14px;
+    }
+
+    .promptPageContent h1 {
+        font-size: 25px;
+    }
+
+    .promptPageContent p {
+        font-size: 14px;
+    }
+}

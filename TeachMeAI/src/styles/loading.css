@@ -1,43 +1,362 @@
-.loading-container{
+.loadingOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+
     display: flex;
     justify-content: center;
-    margin: 30px 0;
-    animation:fadeIn 0.4s ease;
+    align-items: center;
+
+    padding: 20px;
+    box-sizing: border-box;
+
+    background: rgba(15, 23, 42, 0.35);
+    backdrop-filter: blur(9px);
+    -webkit-backdrop-filter: blur(9px);
+
+    animation: overlayAppear 0.35s ease;
 }
-.loading-card{
+
+.loadingModal {
     width: 100%;
-    max-width: 700px;
-    background: linear-gradient(135deg,#1e3a8a,#2563eb);
-    border-radius: 18px;
-    padding: 28px 35px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.18);
-    color: rgb(22, 130, 231);
+    max-width: 440px;
+
+    padding: 38px 35px;
+    box-sizing: border-box;
+
+    background: linear-gradient(145deg, #ffffff, #f5f7ff);
+
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    border-radius: 25px;
+
+    text-align: center;
+
+    box-shadow:
+        0 25px 70px rgba(15, 23, 42, 0.2),
+        0 5px 20px rgba(79, 70, 229, 0.08);
+
+    animation: modalAppear 0.45s ease;
 }
-.loading-card h3{
-    margin: 0 0 22px 0;
-    font-size: 24px;
-    font-weight: 700;
-    letter-spacing: 0.3px;
-}
-.loading-card p{
+
+/* AI animation */
+
+.aiVisual {
+    width: 130px;
+    height: 130px;
+
+    position: relative;
+    margin: 0 auto 25px;
+
     display: flex;
     align-items: center;
-    gap: 12px;
-    margin: 14px 0;
-    font-size: 18px;
-    font-weight: 500;
+    justify-content: center;
 }
-@keyframes fadeIn{
-    from{
-        opacity: 0;
-        transform: translateY(12px);
+
+.aiCore {
+    width: 65px;
+    height: 65px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 22px;
+
+    color: white;
+
+    background: linear-gradient(135deg, #4776e6, #8961df);
+
+    box-shadow: 0 8px 25px rgba(99, 102, 241, 0.35);
+
+    animation: coreFloat 2.5s ease-in-out infinite;
+
+    z-index: 2;
+}
+
+.aiCore svg {
+    width: 34px;
+    height: 34px;
+}
+
+.outerRing,
+.middleRing {
+    position: absolute;
+    border-radius: 50%;
+    border: 1.5px solid rgba(99, 102, 241, 0.2);
+}
+
+.outerRing {
+    width: 125px;
+    height: 125px;
+
+    border-top-color: #6366f1;
+    border-right-color: #8b5cf6;
+
+    animation: rotateRing 3s linear infinite;
+}
+
+.middleRing {
+    width: 95px;
+    height: 95px;
+
+    border-bottom-color: #60a5fa;
+    border-left-color: #8b5cf6;
+
+    animation: rotateRing 2s linear infinite reverse;
+}
+
+.orbitDot {
+    position: absolute;
+    width: 9px;
+    height: 9px;
+
+    border-radius: 50%;
+    background: #818cf8;
+
+    box-shadow: 0 0 12px rgba(99, 102, 241, 0.6);
+}
+
+.dotOne {
+    top: 4px;
+    right: 30px;
+}
+
+.dotTwo {
+    bottom: 10px;
+    left: 18px;
+
+    background: #60a5fa;
+}
+
+/* Text */
+
+.loadingModal h2 {
+    font-family: Arial, Helvetica, sans-serif;
+
+    font-size: 23px;
+    color: #1e293b;
+
+    margin: 0 0 12px;
+}
+
+.loadingDescription {
+    font-family: Arial, Helvetica, sans-serif;
+
+    font-size: 14px;
+    line-height: 1.6;
+
+    color: #64748b;
+
+    margin: 0 auto 25px;
+    max-width: 310px;
+}
+
+.loadingStatus {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+
+    color: #4f46e5;
+
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+
+    margin-bottom: 17px;
+}
+
+.statusIndicator {
+    width: 9px;
+    height: 9px;
+
+    background: #6366f1;
+    border-radius: 50%;
+
+    animation: statusPulse 1.2s ease-in-out infinite;
+}
+
+/* Buffering animation */
+
+.bufferTrack {
+    width: 100%;
+    height: 6px;
+
+    background: #e8eaf8;
+
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.bufferProgress {
+    width: 35%;
+    height: 100%;
+
+    border-radius: 20px;
+
+    background: linear-gradient(90deg, #4776e6, #a078ed);
+
+    animation: buffering 1.8s ease-in-out infinite;
+}
+
+.loadingFooter {
+    margin: 18px 0 0;
+
+    color: #94a3b8;
+
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12px;
+}
+
+/* Animations */
+
+@keyframes rotateRing {
+    to {
+        transform: rotate(360deg);
     }
-    to{
-        opacity: 1;
+}
+
+@keyframes coreFloat {
+    0%, 100% {
         transform: translateY(0);
     }
+
+    50% {
+        transform: translateY(-5px);
+    }
 }
-.active-step{
-    font-weight: 700;
-    color: #ffffff;
+
+@keyframes statusPulse {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.4;
+        transform: scale(0.75);
+    }
+}
+
+@keyframes buffering {
+    0% {
+        transform: translateX(-110%);
+    }
+
+    100% {
+        transform: translateX(300%);
+    }
+}
+
+@keyframes overlayAppear {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes modalAppear {
+    from {
+        opacity: 0;
+        transform: translateY(18px) scale(0.96);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Mobile */
+
+@media (max-width: 480px) {
+    .loadingModal {
+        padding: 32px 22px;
+    }
+
+    .loadingModal h2 {
+        font-size: 20px;
+    }
+
+    .loadingDescription {
+        font-size: 13px;
+    }
+}
+/* Success State */
+
+.successModal {
+    animation: successAppear 0.4s ease;
+}
+
+.successIcon {
+    width: 75px;
+    height: 75px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+    background: linear-gradient(135deg, #16a34a, #4ade80);
+    color: white;
+
+    box-shadow: 0 8px 25px rgba(34, 197, 94, 0.3);
+
+    animation: successPop 0.5s ease;
+}
+
+.successIcon svg {
+    width: 38px;
+    height: 38px;
+}
+
+.successStatus {
+    color: #16a34a;
+}
+
+.successStatus .statusIndicator {
+    background: #22c55e;
+    animation: none;
+}
+
+.successTrack {
+    background: #dcfce7;
+}
+
+.successProgress {
+    width: 100%;
+    background: linear-gradient(90deg, #16a34a, #4ade80);
+    animation: none;
+    transform: none;
+}
+
+@keyframes successPop {
+    0% {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+
+    70% {
+        transform: scale(1.12);
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes successAppear {
+    from {
+        opacity: 0.6;
+        transform: scale(0.97);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
 }

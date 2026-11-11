@@ -1,27 +1,27 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext } from 'react'
+import { useNavigate } from 'react-router-dom'
 import Header from '../components/Header'
 import UploadBox from '../components/UploadBox'
-import PromptSection from '../components/PromptSection'
-
-import "../styles/Home.css"
 import { AppContext } from '../components/Context/AppContext'
-function Home() {
-  const {pdfText,setPdfText,aiResponse,setAiResponse}=useContext(AppContext)
+import "../styles/Home.css"
 
-  const[loading,setLoading]=useState(false);
-  const [loadinstage,setLoadingstage]=useState("idle");
+function Home() {
+  const { pdfText, setPdfText } = useContext(AppContext)
+  const navigate = useNavigate()
+
   return (
     <div className='homeContainer'>
-    <div className='container'>
-       <Header/>
-     <UploadBox setPdfText={setPdfText}/>
-     <PromptSection pdfText={pdfText}
-     setAiResponse={setAiResponse}
-     loading={loading}
-     setLoading={setLoading}
-     loadinstage={loadinstage}
-     setLoadingstage={setLoadingstage}/>
-    </div>
+      <div className='container'>
+        <Header />
+
+       <UploadBox
+    setPdfText={setPdfText}
+    onContinue={() => navigate("/choose-prompt")}
+/>
+
+       
+
+      </div>
     </div>
   )
 }
