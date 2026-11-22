@@ -4,7 +4,7 @@ import { AppContext } from '../components/Context/AppContext';
 import { supabase } from '../lib/supabaseClient';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import '../styles/SavedTopics.css';
+import '../styles/Savedtopics.css';
 
 function SavedTopics() {
 
