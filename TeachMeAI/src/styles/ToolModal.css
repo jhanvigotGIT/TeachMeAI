@@ -1,11 +1,15 @@
+/* ================================
+   MODAL OVERLAY
+================================ */
+
 .modal-overlay {
     position: fixed;
     inset: 0;
-
     width: 100%;
     height: 100%;
-    
-    background: rgba(0, 0, 0, 0.48);
+
+    background: rgba(15, 18, 45, 0.58);
+    backdrop-filter: blur(5px);
 
     display: flex;
     justify-content: center;
@@ -29,12 +33,16 @@
     visibility: hidden;
 }
 
+
+/* ================================
+   MAIN MODAL
+================================ */
+
 .tool-modal {
     position: relative;
 
     width: 85%;
     height: 85%;
-
     max-width: 1100px;
 
     background: white;
@@ -62,16 +70,19 @@
     opacity: 0;
 }
 
+
 /* FLASHCARD MODAL */
 
 .tool-modal.flashcard-modal {
     width: min(900px, 90vw);
     height: min(570px, 85vh);
-
     max-width: 900px;
 }
 
-/* HEADER */
+
+/* ================================
+   HEADER
+================================ */
 
 .tool-modal-header {
     flex-shrink: 0;
@@ -88,9 +99,28 @@
 
 .tool-modal-header h2 {
     margin: 0;
+    font-size: 22px;
+    font-weight: 700;
 }
 
-/* BODY */
+
+/* KEY POINTS HEADER */
+
+.keypoints-modal .tool-modal-header {
+    background: linear-gradient(110deg, #5146C8, #7478F2);
+}
+
+
+/* MIND MAP HEADER */
+
+.mindmap-modal .tool-modal-header {
+    background: linear-gradient(110deg, #3949AB, #6574D8);
+}
+
+
+/* ================================
+   MODAL BODY
+================================ */
 
 .tool-modal-body {
     padding: 25px;
@@ -104,12 +134,19 @@
     box-sizing: border-box;
 }
 
+.tool-modal-content {
+    width: 100%;
+}
+
 .flashcard-modal .tool-modal-body {
     padding: 12px 25px;
     overflow: hidden;
 }
 
-/* CLOSE BUTTON */
+
+/* ================================
+   CLOSE BUTTON
+================================ */
 
 .close-btn {
     border: none;
@@ -126,7 +163,338 @@
     transform: scale(1.15) rotate(90deg);
 }
 
-/* LOADING */
+
+/* ================================
+   KEY POINTS DESIGN
+================================ */
+
+.keypoints-modal .tool-modal-body {
+    background: #F7F8FF;
+}
+
+.keypoints-modal .tool-modal-content {
+    max-width: 900px;
+    margin: auto;
+
+    color: #343650;
+    line-height: 1.75;
+}
+
+
+/* MAIN HEADING */
+
+.keypoints-modal .tool-modal-content h1 {
+    background: linear-gradient(120deg, #5146C8, #8588F5);
+    color: white;
+
+    padding: 22px 25px;
+    border-radius: 16px;
+
+    font-size: 25px;
+    margin: 0 0 25px;
+
+    box-shadow: 0 8px 20px rgba(81, 70, 200, 0.16);
+}
+
+
+/* SECTION HEADINGS */
+
+.keypoints-modal .tool-modal-content h2 {
+    color: #5146C8;
+
+    font-size: 20px;
+    font-weight: 750;
+
+    margin-top: 32px;
+    margin-bottom: 15px;
+
+    padding: 12px 16px;
+
+    background: #ECEBFF;
+    border-left: 5px solid #6865E8;
+
+    border-radius: 9px;
+}
+
+
+/* SUBHEADINGS */
+
+.keypoints-modal .tool-modal-content h3 {
+    color: #343D78;
+    font-size: 17px;
+
+    margin-top: 22px;
+    margin-bottom: 10px;
+}
+
+
+/* PARAGRAPHS */
+
+.keypoints-modal .tool-modal-content p {
+    color: #53566D;
+    font-size: 15px;
+
+    margin: 10px 0;
+}
+
+
+/* LIST CARDS */
+
+.keypoints-modal .tool-modal-content ul,
+.keypoints-modal .tool-modal-content ol {
+    padding: 15px 20px 15px 42px;
+
+    background: white;
+    border: 1px solid #E5E5F8;
+
+    border-radius: 13px;
+
+    margin: 14px 0 22px;
+
+    box-shadow: 0 4px 14px rgba(64, 66, 130, 0.045);
+}
+
+.keypoints-modal .tool-modal-content li {
+    padding: 6px 4px;
+    color: #4B4D65;
+    font-size: 14.5px;
+}
+
+.keypoints-modal .tool-modal-content li::marker {
+    color: #6865E8;
+    font-weight: bold;
+}
+
+
+/* IMPORTANT TERMS */
+
+.keypoints-modal .tool-modal-content strong {
+    color: #5146C8;
+    font-weight: 750;
+}
+
+
+/* HIGHLIGHTED TEXT */
+
+.keypoints-modal .tool-modal-content blockquote {
+    margin: 18px 0;
+    padding: 15px 20px;
+
+    background: #EAF5FF;
+    border-left: 4px solid #579CE8;
+
+    border-radius: 9px;
+    color: #355B82;
+}
+
+
+/* ================================
+   MIND MAP DESIGN
+================================ */
+
+.mindmap-modal .tool-modal-body {
+    background: #F5F7FF;
+    padding: 30px;
+}
+
+.mindmap-modal .tool-modal-content {
+    max-width: 950px;
+    margin: auto;
+
+    color: #343650;
+    text-align: center;
+}
+
+
+/* CENTRAL TOPIC */
+
+.mindmap-modal .tool-modal-content h1 {
+    display: inline-block;
+
+    padding: 20px 35px;
+    margin: 0 auto 35px;
+
+    background: linear-gradient(135deg, #4B42B8, #7779EA);
+
+    color: white;
+    font-size: 25px;
+
+    border-radius: 18px;
+
+    box-shadow: 0 10px 25px rgba(76, 68, 190, 0.23);
+
+    position: relative;
+}
+
+
+/* CONNECTOR BELOW CENTRAL TOPIC */
+
+.mindmap-modal .tool-modal-content h1::after {
+    content: "";
+
+    position: absolute;
+
+    height: 35px;
+    width: 3px;
+
+    background: #A5A9D8;
+
+    left: 50%;
+    bottom: -35px;
+}
+
+
+/* MAIN BRANCHES */
+
+.mindmap-modal .tool-modal-content h2 {
+    display: block;
+
+    margin: 35px auto 18px;
+    padding: 16px 20px;
+
+    max-width: 650px;
+
+    background: white;
+
+    border: 1px solid #E0E4FA;
+    border-left: 6px solid #7779EA;
+
+    border-radius: 13px;
+
+    color: #44499D;
+    font-size: 19px;
+    font-weight: 750;
+
+    text-align: left;
+
+    box-shadow: 0 5px 15px rgba(69, 79, 150, 0.07);
+}
+
+
+/* DIFFERENT BRANCH COLOURS */
+
+.mindmap-modal .tool-modal-content h2:nth-of-type(3n+1) {
+    border-left-color: #7779EA;
+    color: #4D50A5;
+}
+
+.mindmap-modal .tool-modal-content h2:nth-of-type(3n+2) {
+    border-left-color: #32A99B;
+    color: #278477;
+}
+
+.mindmap-modal .tool-modal-content h2:nth-of-type(3n) {
+    border-left-color: #E7A34F;
+    color: #B87829;
+}
+
+
+/* SUBTOPICS */
+
+.mindmap-modal .tool-modal-content h3 {
+    display: inline-block;
+
+    margin: 15px 0 8px;
+    padding: 9px 16px;
+
+    background: #E9EAFE;
+
+    border-radius: 9px;
+
+    color: #4D50A5;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+
+/* SUPPORTING IDEAS */
+
+.mindmap-modal .tool-modal-content ul {
+    list-style: none;
+
+    max-width: 600px;
+
+    margin: 8px auto 20px;
+    padding: 12px 18px;
+
+    background: white;
+
+    border: 1px solid #E6E9F8;
+    border-radius: 12px;
+
+    text-align: left;
+
+    box-shadow: 0 4px 12px rgba(69, 79, 150, 0.045);
+}
+
+
+/* NESTED BRANCHES */
+
+.mindmap-modal .tool-modal-content ul ul {
+    margin: 8px 0 8px 15px;
+
+    padding: 8px 12px;
+
+    background: #F5F6FF;
+    border-left: 3px solid #A5A8ED;
+
+    box-shadow: none;
+}
+
+
+/* BRANCH ITEMS */
+
+.mindmap-modal .tool-modal-content li {
+    position: relative;
+
+    padding: 7px 8px 7px 20px;
+
+    color: #555970;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+
+/* BRANCH CONNECTOR DOTS */
+
+.mindmap-modal .tool-modal-content li::before {
+    content: "";
+
+    position: absolute;
+
+    width: 8px;
+    height: 8px;
+
+    left: 0;
+    top: 15px;
+
+    border-radius: 50%;
+    background: #7779EA;
+}
+
+
+/* NESTED BRANCH CONNECTOR */
+
+.mindmap-modal .tool-modal-content ul ul li::before {
+    background: #32A99B;
+}
+
+
+/* TEXT */
+
+.mindmap-modal .tool-modal-content p {
+    color: #5B5F78;
+    font-size: 14px;
+}
+
+.mindmap-modal .tool-modal-content strong {
+    color: #4D50A5;
+}
+
+
+/* ================================
+   LOADING
+================================ */
 
 .tool-loading {
     min-height: 350px;
@@ -166,4 +534,42 @@
     to {
         transform: rotate(360deg);
     }
+}
+
+
+/* ================================
+   RESPONSIVE DESIGN
+================================ */
+
+@media (max-width: 768px) {
+
+    .tool-modal {
+        width: 95%;
+        height: 90%;
+        border-radius: 16px;
+    }
+
+    .tool-modal-body {
+        padding: 18px;
+    }
+
+    .tool-modal-header {
+        padding: 14px 18px;
+    }
+
+    .keypoints-modal .tool-modal-content h1,
+    .mindmap-modal .tool-modal-content h1 {
+        font-size: 20px;
+        padding: 16px 20px;
+    }
+
+    .keypoints-modal .tool-modal-content h2,
+    .mindmap-modal .tool-modal-content h2 {
+        font-size: 17px;
+    }
+
+    .mindmap-modal .tool-modal-body {
+        padding: 18px;
+    }
+
 }

@@ -1,4 +1,4 @@
-import React, { useContext, useState,useEffect  } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import PromptSection from '../components/PromptSection';
@@ -11,54 +11,72 @@ function PromptPage() {
 
     const [loading, setLoading] = useState(false);
     const [loadinstage, setLoadingstage] = useState("idle");
-useEffect(() => {
-    window.scrollTo(0, 0);
 
-    const timer = setTimeout(() => {
-        const heading = document.querySelector(".promptPageContent");
+    useEffect(() => {
+        window.scrollTo(0, 0);
 
-        if (heading) {
-            const position = heading.getBoundingClientRect().top + window.scrollY - 30;
+        const timer = setTimeout(() => {
+            const cards = document.querySelector(".learningCards");
 
-            window.scrollTo({
-                top: position,
-                behavior: "smooth"
-            });
-        }
-    }, 300);
+            if (cards) {
+                const position =
+                    cards.getBoundingClientRect().top +
+                    window.scrollY -
+                    100;
 
-    return () => clearTimeout(timer);
-}, []);
+                window.scrollTo({
+                    top: position,
+                    behavior: "smooth"
+                });
+            }
+        }, 1);
+
+        return () => clearTimeout(timer);
+    }, []);
 
     return (
-        <div className="promptPage">
-            <div className="promptPageContainer">
-                <Header />
+        <div className="prompt-page-bg">
 
-                <button
-                    className="backBtn"
-                    onClick={() => navigate("/")}
-                >
-                    ← Back to Upload
-                </button>
+            <div className="promptPage">
+                <div className="promptPageContainer">
 
-                <div className="promptPageContent">
-                    <h1>How would you like to learn?</h1>
-                    <p>
-                        Choose your learning style and let your AI teacher
-                        explain your PDF.
-                    </p>
+                    {/* TOP NAVIGATION */}
+                    <div className="promptTopBar">
+                        <button
+                            className="backBtn"
+                            onClick={() => navigate("/")}
+                        >
+                            ← Back to Upload
+                        </button>
+                    </div>
 
-                    <PromptSection
-                        pdfText={pdfText}
-                        setAiResponse={setAiResponse}
-                        loading={loading}
-                        setLoading={setLoading}
-                        loadinstage={loadinstage}
-                        setLoadingstage={setLoadingstage}
-                    />
+                    {/* HEADER */}
+                    <Header />
+
+                    {/* MAIN CONTENT */}
+                    <div className="promptPageContent">
+
+                        <h1>How would you like to learn?</h1>
+
+                        <p>
+                            Choose your learning style and let your AI teacher
+                            explain your PDF.
+                        </p>
+
+                        <PromptSection
+                            pdfText={pdfText}
+                            setAiResponse={setAiResponse}
+                            loading={loading}
+                            setLoading={setLoading}
+                            loadinstage={loadinstage}
+                            setLoadingstage={setLoadingstage}
+                        />
+
+                    </div>
+
                 </div>
             </div>
+
         </div>
     );
 }

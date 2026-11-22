@@ -1,25 +1,50 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
+
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 const genAI = new GoogleGenerativeAI(API_KEY);
+
 const model = genAI.getGenerativeModel({
-  model: "gemini-2.5-flash",
+    model: "gemini-3.5-flash-lite",
 });
+
+
 export async function askGemini(pdfText, userPrompt) {
-  const prompt = `
+
+    const prompt = `
 You are an expert AI teacher.
+
 The student uploaded the following PDF.
 The student wants you to teach it like this:
+
 ${userPrompt}
+
 PDF Content:
 ${pdfText}
+
 Follow the student's instructions exactly.
 `;
-  const result = await model.generateContent(prompt);
-  return result.response.text();
+
+   const result = await model.generateContent({
+    contents: [
+        {
+            role: "user",
+            parts: [
+                { text: prompt }
+            ]
+        }
+    ],
+    generationConfig: {
+        maxOutputTokens: 8192,
+    }
+});
+
+return result.response.text();
 }
+
+
 export async function generatePDFExplanation(pdfText, userPrompt) {
 
-  const teachingPrompt = `
+    const teachingPrompt = `
 You are TeachMeAI, an intelligent, patient and highly effective personal AI teacher.
 
 Your responsibility is to teach the student the content of the uploaded PDF accurately, clearly and thoroughly.
@@ -97,16 +122,7 @@ The final explanation should feel like a knowledgeable teacher personally teachi
 
 Follow the student's learning preference while maintaining all the teaching standards above.
 `;
+const result = await model.generateContent(teachingPrompt);
 
- const result = await model.generateContentStream(teachingPrompt);
-
-let fullResponse = "";
-
-for await (const chunk of result.stream) {
-    const chunkText = chunk.text();
-
-    fullResponse += chunkText;
-}
-
-return fullResponse;
+return result.response.text();
 }

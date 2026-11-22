@@ -9,12 +9,98 @@ import { IoSend } from "react-icons/io5";
 import { IoMdPerson } from "react-icons/io";
 import { RiRobot2Fill } from "react-icons/ri";
 import { askGemini } from '../services/geminiService';
-import { generateSpeech } from "../services/kokoroTTS";
+
 import ToolModal from "./ToolModal";
 import Flashcards from "./Flashcards";
 import MCQ from "./MCQ";
 import Quiz from "./Quiz";
 import { FaMicrophone, FaStop } from "react-icons/fa";
+
+import { supabase } from '../lib/supabaseClient';
+import { useNavigate } from 'react-router-dom';
+
+
+function BookmarkableMarkdown({ content, onBookmark, savedSections }) {
+    const lines = content.split('\n');
+    const sections = [];
+    let currentSection = null;
+    let preamble = [];
+
+    lines.forEach((line) => {
+        const heading = line.match(/^(#{1,6})\s+(.+)$/);
+
+        if (heading) {
+            if (currentSection) sections.push(currentSection);
+            else if (preamble.length) {
+                sections.push({
+                    title: "Introduction",
+                    content: preamble.join('\n').trim()
+                });
+                preamble = [];
+            }
+
+            currentSection = {
+                title: heading[2].replace(/[*_`]/g, '').trim(),
+                content: line
+            };
+        } else if (currentSection) {
+            currentSection.content += '\n' + line;
+        } else {
+            preamble.push(line);
+        }
+    });
+
+    if (currentSection) sections.push(currentSection);
+    else if (preamble.length) {
+        sections.push({
+            title: "Study Notes",
+            content: preamble.join('\n').trim()
+        });
+    }
+
+    if (sections.length === 0) {
+        return <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>;
+    }
+
+    const isIntroSection = (section) => {
+        const title = section.title.toLowerCase();
+        const text = section.content.toLowerCase().slice(0, 500);
+        return /^(introduction|welcome|ai teacher|teacher|hello|overview|about this lesson|learning objectives|how to use|study guide)$/i.test(title)
+            || /^(🤖\s*)?ai teacher|^(hello|welcome)|your personal ai teacher/i.test(text);
+    };
+
+    return (
+        <div className="bookmarkableContent">
+            {sections.map((section, index) => {
+                const sectionKey = `${section.title}::${section.content}`;
+                const canSave = !isIntroSection(section) && section.title !== 'Study Notes';
+                const isSaved = savedSections.has(sectionKey);
+
+                return (
+                    <div className="bookmarkSection" key={index}>
+                        {canSave && (
+                            <div className="bookmarkSectionHeader">
+                                <button
+                                    type="button"
+                                    className={`bookmarkButton ${isSaved ? 'bookmarkSaved' : ''}`}
+                                    onClick={() => !isSaved && onBookmark(section.title, section.content, sectionKey)}
+                                    title={isSaved ? 'Topic saved' : `Save ${section.title}`}
+                                    disabled={isSaved}
+                                >
+                                    {isSaved ? <span className="bookmarkCheck">✓</span> : <span>🔖</span>}
+                                    {isSaved ? 'Saved' : 'Save topic'}
+                                </button>
+                            </div>
+                        )}
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                            {section.content}
+                        </ReactMarkdown>
+                    </div>
+                );
+            })}
+        </div>
+    );
+}
 
 function ResponseBox({ aiResponse }) {
 
@@ -24,9 +110,11 @@ function ResponseBox({ aiResponse }) {
     const [loading, setLoading] = useState(false);
     const [isTyping, setisTyping] = useState(false);
 
-    const audioRef = useRef(null);
-    const audioUrlRef = useRef("");
     const speechRunId = useRef(0);
+const speechChunksRef = useRef([]);
+const speechIndexRef = useRef(0);
+const currentUtteranceRef = useRef(null);
+const speechTimerRef = useRef(null);
 
     const [speechStatus, setSpeechStatus] = useState("stopped");
     const [speechSpeed, setSpeechSpeed] = useState(0.9);
@@ -35,7 +123,50 @@ function ResponseBox({ aiResponse }) {
     const [isListening, setIsListening] = useState(false);
     const recognitionRef = useRef(null);
 
-    const { messages, setMessages, pdfText, setAiResponse } = useContext(AppContext);
+    const { messages, setMessages, pdfText, setAiResponse, user,
+    currentStudyId  } = useContext(AppContext);
+
+    const navigate = useNavigate();
+    const [savedSections, setSavedSections] = useState(new Set());
+    const [bookmarkNotice, setBookmarkNotice] = useState('');
+    const bookmarkNoticeTimer = useRef(null);
+
+    const showBookmarkNotice = (message) => {
+        setBookmarkNotice(message);
+        if (bookmarkNoticeTimer.current) clearTimeout(bookmarkNoticeTimer.current);
+        bookmarkNoticeTimer.current = setTimeout(() => setBookmarkNotice(''), 3200);
+    };
+
+    const saveBookmark = async (title, content, sectionKey) => {
+        if (!user) {
+            showBookmarkNotice('Log in to save topics to your Saved Topics.');
+            setTimeout(() => navigate('/login'), 1600);
+            return;
+        }
+
+        if (!currentStudyId) {
+            showBookmarkNotice('Open or generate a study session before saving topics.');
+            return;
+        }
+
+        const { error } = await supabase
+            .from('bookmarks')
+            .insert({
+                user_id: user.id,
+                study_id: currentStudyId,
+                topic_title: title,
+                topic_content: content
+            });
+
+        if (error) {
+            console.error("Bookmark error:", error);
+            showBookmarkNotice('Could not save this topic. Please try again.');
+            return;
+        }
+
+        setSavedSections(previous => new Set([...previous, sectionKey]));
+        showBookmarkNotice('Topic saved to Saved Topics!');
+    };
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalTitle, setModalTitle] = useState("");
@@ -48,34 +179,34 @@ function ResponseBox({ aiResponse }) {
 
 
     // AI response typewriter effect
-    useEffect(() => {
+useEffect(() => {
 
-        if (!aiResponse) {
-            setDisplayText("");
-            return;
+    if (!aiResponse) {
+        setDisplayText("");
+        return;
+    }
+
+    setShowActions(false);
+    setDisplayText("");
+
+    let index = 0;
+
+    const interval = setInterval(() => {
+
+        setDisplayText(aiResponse.slice(0, index));
+
+        index += 10;
+
+        if (index >= aiResponse.length) {
+            clearInterval(interval);
+            setShowActions(true);
         }
 
-        setShowActions(false);
-        setDisplayText("");
+    }, 5);
 
-        let index = 0;
+    return () => clearInterval(interval);
 
-        const interval = setInterval(() => {
-
-            setDisplayText(aiResponse.slice(0, index));
-
-            index += 10;
-
-            if (index >= aiResponse.length) {
-                clearInterval(interval);
-                setShowActions(true);
-            }
-
-        }, 5);
-
-        return () => clearInterval(interval);
-
-    }, [aiResponse]);
+}, [aiResponse]);
 
 
     // Tool content typewriter effect
@@ -104,299 +235,370 @@ function ResponseBox({ aiResponse }) {
     }, [modalContent]);
 
 
-    // VOICE NARRATION — KOKORO SKY VOICE
+ // VOICE NARRATION — BROWSER SPEECH SYNTHESIS
 
-    const speakText = async (text) => {
+const splitSpeechIntoChunks = (text, maxLength = 220) => {
 
-        const runId = ++speechRunId.current;
+    const words = text.split(/\s+/);
+    const chunks = [];
+    let currentChunk = "";
 
-        // Stop previous audio
-        if (audioRef.current) {
-            audioRef.current.pause();
-            audioRef.current.src = "";
-            audioRef.current = null;
+    words.forEach(word => {
+
+        if (
+            currentChunk.length + word.length + 1 > maxLength &&
+            currentChunk.length > 0
+        ) {
+            chunks.push(currentChunk.trim());
+            currentChunk = "";
         }
 
-        // Release previous audio URL
-        if (audioUrlRef.current) {
-            URL.revokeObjectURL(audioUrlRef.current);
-            audioUrlRef.current = "";
-        }
+        currentChunk += word + " ";
 
-        // Clean Markdown and formatting symbols
-        const cleanText = text
+    });
 
-            .replace(/```[\s\S]*?```/g, " ")
-            .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
-            .replace(/^\s{0,3}#{1,6}\s*/gm, "")
-            .replace(/^\s*([-_*])\1{2,}\s*$/gm, "")
-            .replace(/\*\*(.*?)\*\*/gs, "$1")
-            .replace(/\*(.*?)\*/gs, "$1")
-            .replace(/__(.*?)__/gs, "$1")
-            .replace(/_(.*?)_/gs, "$1")
-            .replace(/~~(.*?)~~/gs, "$1")
-            .replace(/`([^`]+)`/g, "$1")
-            .replace(/^\s*[-*+•]\s+/gm, "")
-            .replace(/^\s*>\s?/gm, "")
-            .replace(/^\s*\|?[\s:|-]+\|?\s*$/gm, "")
-            .replace(/\|/g, " ")
-            .replace(/<[^>]*>/g, "")
-            .replace(/[●○■□◆◇▪▫►▶→←★☆✓✔️]/g, "")
-            .replace(/[#*_~`]/g, "")
-            .replace(/-{2,}/g, " ")
-            .replace(/[ \t]+/g, " ")
-            .replace(/\n{2,}/g, ". ")
-            .replace(/\s+([,.!?;:])/g, "$1")
-            .trim();
+    if (currentChunk.trim()) {
+        chunks.push(currentChunk.trim());
+    }
 
-        if (!cleanText) {
-            setSpeechStatus("stopped");
-            return;
-        }
+    return chunks;
 
-        try {
+};
 
-            setSpeechStatus("loading");
 
-            // Generate speech using Kokoro Sky voice
-            const generatedAudio = await generateSpeech(cleanText, 1);
+const speakNextChunk = (runId) => {
 
-            // Ignore outdated generation requests
-            if (runId !== speechRunId.current) {
-                return;
-            }
+    if (runId !== speechRunId.current) return;
 
-            const audioBlob = generatedAudio.toBlob();
-            const audioUrl = URL.createObjectURL(audioBlob);
-
-            audioUrlRef.current = audioUrl;
-
-            const audio = new Audio(audioUrl);
-
-            audioRef.current = audio;
-
-            // Apply selected playback speed
-            audio.playbackRate = speechSpeed;
-
-            audio.onended = () => {
-
-                if (runId !== speechRunId.current) return;
-
-                setSpeechStatus("stopped");
-
-                audioRef.current = null;
-
-                if (audioUrlRef.current) {
-                    URL.revokeObjectURL(audioUrlRef.current);
-                    audioUrlRef.current = "";
-                }
-
-            };
-
-            audio.onerror = () => {
-
-                if (runId !== speechRunId.current) return;
-
-                console.error("Kokoro audio playback failed.");
-
-                setSpeechStatus("stopped");
-
-                audioRef.current = null;
-
-                if (audioUrlRef.current) {
-                    URL.revokeObjectURL(audioUrlRef.current);
-                    audioUrlRef.current = "";
-                }
-
-            };
-
-            await audio.play();
-
-            if (runId === speechRunId.current) {
-                setSpeechStatus("playing");
-            }
-
-        }
-
-        catch (error) {
-
-            if (runId !== speechRunId.current) return;
-
-            console.error("Kokoro narration error:", error);
-
-            setSpeechStatus("stopped");
-
-            alert(
-                "Unable to generate narration. Please check your connection and try again."
-            );
-
-        }
-
-    };
-
-
-    const pauseSpeech = () => {
-
-        if (audioRef.current && !audioRef.current.paused) {
-
-            audioRef.current.pause();
-
-            setSpeechStatus("paused");
-
-        }
-
-    };
-
-
-    const resumeSpeech = async () => {
-
-        if (audioRef.current && audioRef.current.paused) {
-
-            try {
-
-                await audioRef.current.play();
-
-                setSpeechStatus("playing");
-
-            }
-
-            catch (error) {
-
-                console.error("Unable to resume narration:", error);
-
-            }
-
-        }
-
-    };
-
-
-    const stopSpeech = () => {
-
-        // Invalidate any ongoing generation
-        speechRunId.current++;
-
-        if (audioRef.current) {
-
-            audioRef.current.pause();
-
-            audioRef.current.src = "";
-
-            audioRef.current = null;
-
-        }
-
-        if (audioUrlRef.current) {
-
-            URL.revokeObjectURL(audioUrlRef.current);
-
-            audioUrlRef.current = "";
-
-        }
+    if (speechIndexRef.current >= speechChunksRef.current.length) {
 
         setSpeechStatus("stopped");
+        currentUtteranceRef.current = null;
 
-    };
+        return;
 
+    }
 
-    // CHANGE SPEED WITHOUT RESTARTING NARRATION
+    const chunk = speechChunksRef.current[speechIndexRef.current];
 
-    const changeSpeechSpeed = (speed) => {
+    const utterance = new SpeechSynthesisUtterance(chunk);
 
-        setSpeechSpeed(speed);
+    const voices = window.speechSynthesis.getVoices();
 
-        if (audioRef.current) {
+    const selectedVoice =
+        voices.find(voice => voice.lang.toLowerCase() === "en-in") ||
+        voices.find(voice => voice.lang.toLowerCase().startsWith("en-us")) ||
+        voices.find(voice => voice.lang.toLowerCase().startsWith("en"));
 
-            audioRef.current.playbackRate = speed;
+    if (selectedVoice) {
+        utterance.voice = selectedVoice;
+    }
 
+    utterance.rate = speechSpeed;
+    utterance.pitch = 1;
+    utterance.volume = 1;
+
+    currentUtteranceRef.current = utterance;
+
+    utterance.onstart = () => {
+
+        if (runId === speechRunId.current) {
+            setSpeechStatus("playing");
         }
 
     };
 
+    utterance.onend = () => {
 
-    // VOICE INPUT — SPEECH TO TEXT
+        if (runId !== speechRunId.current) return;
 
-    const startVoiceInput = () => {
+        speechIndexRef.current++;
 
-        const SpeechRecognition =
-            window.SpeechRecognition || window.webkitSpeechRecognition;
+        speechTimerRef.current = setTimeout(() => {
+            speakNextChunk(runId);
+        }, 100);
 
-        if (!SpeechRecognition) {
+    };
 
-            alert("Voice input is not supported in this browser. Please use Google Chrome.");
+    utterance.onerror = (event) => {
 
-            return;
+        if (runId !== speechRunId.current) return;
 
-        }
+        console.error("Speech narration error:", event.error);
 
-        const recognition = new SpeechRecognition();
+        setSpeechStatus("stopped");
+        currentUtteranceRef.current = null;
 
-        recognition.lang = "en-IN";
-        recognition.continuous = false;
-        recognition.interimResults = false;
+    };
 
-        recognitionRef.current = recognition;
+    window.speechSynthesis.speak(utterance);
 
-        recognition.onstart = () => {
+};
 
-            setIsListening(true);
 
-        };
+const speakText = (text) => {
 
-        recognition.onresult = (event) => {
-
-            const transcript = event.results[0][0].transcript;
-
-            setUserInput(previous =>
-                previous ? previous + " " + transcript : transcript
-            );
-
-        };
-
-        recognition.onerror = (event) => {
-
-            console.error("Voice input error:", event.error);
-
-            setIsListening(false);
-
-        };
-
-        recognition.onend = () => {
-
-            setIsListening(false);
-
-            recognitionRef.current = null;
-
-        };
+    // Stop microphone if it is currently listening
+    if (recognitionRef.current) {
 
         try {
-
-            recognition.start();
-
+            recognitionRef.current.stop();
+        } catch (error) {
+            console.log(error);
         }
 
-        catch (error) {
+        recognitionRef.current = null;
 
-            console.error("Unable to start voice input:", error);
+    }
 
-            setIsListening(false);
+    setIsListening(false);
 
-        }
+    if (
+        !("speechSynthesis" in window) ||
+        !("SpeechSynthesisUtterance" in window)
+    ) {
+
+        alert("Voice narration is not supported in this browser.");
+
+        return;
+
+    }
+
+    // Stop previous narration
+    speechRunId.current++;
+
+    const runId = speechRunId.current;
+
+    window.speechSynthesis.cancel();
+
+    clearTimeout(speechTimerRef.current);
+
+    // Clean Markdown formatting
+    const cleanText = text
+
+        .replace(/```[\s\S]*?```/g, " ")
+        .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+        .replace(/^\s{0,3}#{1,6}\s*/gm, "")
+        .replace(/^\s*([-_*])\1{2,}\s*$/gm, "")
+        .replace(/\*\*(.*?)\*\*/gs, "$1")
+        .replace(/\*(.*?)\*/gs, "$1")
+        .replace(/__(.*?)__/gs, "$1")
+        .replace(/_(.*?)_/gs, "$1")
+        .replace(/~~(.*?)~~/gs, "$1")
+        .replace(/`([^`]+)`/g, "$1")
+        .replace(/^\s*[-*+•]\s+/gm, "")
+        .replace(/^\s*>\s?/gm, "")
+        .replace(/^\s*\|?[\s:|-]+\|?\s*$/gm, "")
+        .replace(/\|/g, " ")
+        .replace(/<[^>]*>/g, "")
+        .replace(/[●○■□◆◇▪▫►▶→←★☆✓✔️]/g, "")
+        .replace(/[#*_~`]/g, "")
+        .replace(/-{2,}/g, " ")
+        .replace(/[ \t]+/g, " ")
+        .replace(/\n{2,}/g, ". ")
+        .replace(/\s+([,.!?;:])/g, "$1")
+        .trim();
+
+    if (!cleanText) {
+
+        setSpeechStatus("stopped");
+        return;
+
+    }
+
+    speechChunksRef.current = splitSpeechIntoChunks(cleanText);
+    speechIndexRef.current = 0;
+
+    setSpeechStatus("loading");
+
+    // Start narration
+    speakNextChunk(runId);
+
+};
+
+
+// PAUSE NARRATION
+
+const pauseSpeech = () => {
+
+    if (window.speechSynthesis.speaking) {
+
+        window.speechSynthesis.pause();
+
+        setSpeechStatus("paused");
+
+    }
+
+};
+
+
+// RESUME NARRATION
+
+const resumeSpeech = () => {
+
+    if (window.speechSynthesis.paused) {
+
+        window.speechSynthesis.resume();
+
+        setSpeechStatus("playing");
+
+    }
+
+};
+
+
+// STOP NARRATION
+
+const stopSpeech = () => {
+
+    speechRunId.current++;
+
+    clearTimeout(speechTimerRef.current);
+
+    window.speechSynthesis.cancel();
+
+    speechChunksRef.current = [];
+    speechIndexRef.current = 0;
+    currentUtteranceRef.current = null;
+
+    setSpeechStatus("stopped");
+
+};
+
+
+// CHANGE SPEECH SPEED
+
+const changeSpeechSpeed = (speed) => {
+
+    setSpeechSpeed(speed);
+
+    if (currentUtteranceRef.current) {
+
+        currentUtteranceRef.current.rate = speed;
+
+    }
+
+};
+
+
+// VOICE INPUT — SPEECH TO TEXT
+
+const startVoiceInput = () => {
+
+    // Stop narration before activating microphone
+    stopSpeech();
+
+    const SpeechRecognition =
+        window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+
+        alert("Voice input is not supported in this browser. Please use Google Chrome.");
+
+        return;
+
+    }
+
+    const recognition = new SpeechRecognition();
+
+    recognition.lang = "en-IN";
+    recognition.continuous = false;
+    recognition.interimResults = false;
+
+    recognitionRef.current = recognition;
+
+    recognition.onstart = () => {
+
+        setIsListening(true);
 
     };
 
+    recognition.onresult = (event) => {
 
-    const stopVoiceInput = () => {
+        const transcript = event.results[0][0].transcript;
 
-        if (recognitionRef.current) {
+        setUserInput(previous =>
+            previous ? previous + " " + transcript : transcript
+        );
 
-            recognitionRef.current.stop();
+    };
 
-        }
+    recognition.onerror = (event) => {
+
+        console.error("Voice input error:", event.error);
 
         setIsListening(false);
 
+        recognitionRef.current = null;
+
     };
+
+    recognition.onend = () => {
+
+        setIsListening(false);
+
+        recognitionRef.current = null;
+
+    };
+
+    try {
+
+        recognition.start();
+
+    }
+
+    catch (error) {
+
+        console.error("Unable to start voice input:", error);
+
+        setIsListening(false);
+
+        recognitionRef.current = null;
+
+    }
+
+};
+
+
+const stopVoiceInput = () => {
+
+    if (recognitionRef.current) {
+
+        recognitionRef.current.stop();
+
+    }
+
+    setIsListening(false);
+
+};
+
+
+// CLEANUP WHEN COMPONENT UNMOUNTS
+
+useEffect(() => {
+
+    return () => {
+
+        speechRunId.current++;
+
+        clearTimeout(speechTimerRef.current);
+
+        window.speechSynthesis.cancel();
+
+        if (recognitionRef.current) {
+
+            try {
+                recognitionRef.current.stop();
+            } catch (error) {
+                console.log(error);
+            }
+
+        }
+
+    };
+
+}, []);
+
 
 
     // Copy response
@@ -647,119 +849,102 @@ Important:
                     break;
 
 
-                case "🔑 Key Points":
+             case "🔑 Key Points":
 
-                    prompt = `
+prompt = `
 You are an expert academic note-maker.
 
-Analyze the uploaded PDF and create comprehensive, well-organized revision notes.
+Create beautifully structured and comprehensive revision notes
+based ONLY on the uploaded PDF.
 
-STRICT RULES:
-1. Use ONLY information available in the PDF.
-2. Do not miss important concepts, definitions, facts or explanations.
-3. Avoid unnecessary repetition.
-4. Use simple, student-friendly language.
-5. Keep the notes concise but informative.
+Follow this exact structure:
 
-FOLLOW THIS STRUCTURE:
+## 📌 Topic Overview
+Give a short introduction to the subject.
 
-# Key Points
+## 🔑 Key Concepts
+Organise the important concepts into separate sections.
 
-## 1. Overview
-Briefly explain what the PDF or topic is about.
+For every concept:
+- Give a clear and meaningful heading.
+- Explain it in simple language.
+- Highlight important terms using **bold**.
+- Include definitions wherever necessary.
 
-## 2. Important Concepts
-Explain all major concepts using separate headings.
+## ⭐ Must Remember
+List the most important facts, rules, formulas,
+dates, names or principles from the PDF.
 
-## 3. Important Definitions
-List important terms and their meanings.
+## 💡 Examples
+Include relevant examples wherever they help
+explain a difficult concept.
 
-## 4. Processes and Working
-Explain important processes, steps, mechanisms or working principles in the correct order.
-
-## 5. Important Facts
-Include important facts, characteristics, advantages, disadvantages and applications wherever relevant.
-
-## 6. Formulas and Examples
-Include relevant formulas, examples, calculations or code snippets if they appear in the PDF.
-
-## 7. Quick Revision
-End with the most important points students should remember.
+## 🎯 Quick Revision
+End with 5-10 short, highly important takeaways.
 
 IMPORTANT:
-- Include only sections relevant to the PDF.
-- Use bullet points and numbered lists wherever appropriate.
-- Highlight important terms using **bold**.
-- Use tables when they make comparisons easier.
-- Do not make the notes unnecessarily long.
-- Do not skip important topics just to keep the response short.
-
-Return properly formatted Markdown.
+- Do not miss important information from the PDF.
+- Avoid unnecessary repetition.
+- Use short paragraphs and well-organised bullet points.
+- Make the notes easy to scan and revise.
+- Use Markdown headings, bold text and lists.
+- Do not use tables unless absolutely necessary.
 `;
 
-                    break;
+break;
 
 
                 case "🧠 Mind Map":
 
-                    prompt = `
-You are an expert at creating educational mind maps.
+prompt = `
+You are an expert visual learning and mind-mapping assistant.
 
-Create a detailed, easy-to-understand hierarchical mind map using the uploaded PDF.
+Create a detailed, well-organised hierarchical mind map
+based ONLY on the uploaded PDF.
 
-IMPORTANT:
-Use ONLY information from the PDF.
+Follow these formatting rules strictly:
 
-FOLLOW THIS STRUCTURE:
+# 🧠 CENTRAL TOPIC
+Write the main subject or topic of the PDF.
 
-# Mind Map
+## 🌿 Main Branch 1: [Main Concept]
+### Subtopic
+- Supporting idea
+- Important detail
+- Example or explanation
 
-## CENTRAL TOPIC
-Identify the main subject of the PDF.
+### Subtopic
+- Supporting idea
+- Important detail
 
-Then organize the information hierarchically:
+## 🌿 Main Branch 2: [Main Concept]
+### Subtopic
+- Supporting idea
+- Important detail
 
-- Main Topic 1
-    - Subtopic 1
-        - Important concept
-        - Definition
-        - Explanation
-    - Subtopic 2
-        - Important points
+## 🌿 Main Branch 3: [Main Concept]
+### Subtopic
+- Supporting idea
+- Important detail
 
-- Main Topic 2
-    - Subtopic 1
-        - Related concepts
-        - Important facts
-    - Subtopic 2
-        - Applications
-        - Examples
+Continue creating branches for all important topics.
 
-- Main Topic 3
-    - Important concepts
-    - Processes
-    - Characteristics
+IMPORTANT RULES:
 
-Continue this structure until all important topics from the PDF are covered.
-
-RULES:
-1. Start with the central topic.
-2. Divide it into major branches.
-3. Divide each branch into smaller subtopics.
-4. Show relationships between related concepts using arrows (→).
-5. Keep each point short and meaningful.
-6. Use indentation to clearly show hierarchy.
-7. Highlight important keywords using **bold**.
-8. Avoid lengthy paragraphs.
-9. Do not invent connections or information.
-10. Cover all important sections of the PDF.
-
-The final result should look like a properly organized text-based mind map, not a normal summary.
-
-Return properly formatted Markdown.
+- The central topic must represent the entire PDF.
+- Every main branch must represent a major concept.
+- Subtopics must belong to their correct main branches.
+- Include important definitions, examples and relationships.
+- Use short phrases instead of lengthy paragraphs.
+- Cover all important topics without unnecessary repetition.
+- Use different relevant emojis for main branches.
+- Maintain a clear parent-child hierarchy.
+- Do not create a normal essay or a flat bullet-point summary.
+- Use Markdown headings and nested bullet points only.
+- Do not use code blocks.
 `;
 
-                    break;
+break;
 
 
                 default:
@@ -1039,6 +1224,13 @@ Return properly formatted Markdown.
 
         <div className='responseBox'>
 
+            {bookmarkNotice && (
+                <div className={`bookmarkNotice ${bookmarkNotice.includes('Could not') || bookmarkNotice.includes('Log in') || bookmarkNotice.includes('Open or generate') ? 'bookmarkNoticeError' : ''}`} role='status'>
+                    <span className='bookmarkNoticeIcon'>{bookmarkNotice.includes('saved') ? '✓' : 'ℹ'}</span>
+                    {bookmarkNotice}
+                </div>
+            )}
+
             <div className='response-header'>
 
                 <h2>🤖AI TEACHER</h2>
@@ -1110,15 +1302,21 @@ Return properly formatted Markdown.
                                 </div>
 
 
-                                <ReactMarkdown remarkPlugins={[remarkGfm]}>
-
-                                    {msg.role === "assistant" &&
-                                        index === messages.length - 1 &&
-                                        !isTyping
-                                        ? displayText
-                                        : msg.text}
-
-                                </ReactMarkdown>
+                                {msg.role === "assistant" ? (
+                                    <BookmarkableMarkdown
+                                        content={
+                                            index === messages.length - 1 && !isTyping
+                                                ? displayText
+                                                : msg.text
+                                        }
+                                        onBookmark={saveBookmark}
+                                        savedSections={savedSections}
+                                    />
+                                ) : (
+                                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                        {msg.text}
+                                    </ReactMarkdown>
+                                )}
 
 
                                 {msg.role === "assistant" && msg.text && !isTyping && (
@@ -1391,77 +1589,81 @@ Return properly formatted Markdown.
 
             </div>
 
+<ToolModal
+    isOpen={isModalOpen}
+    title={modalTitle}
+    onClose={() => setIsModalOpen(false)}
+>
 
-            <ToolModal
-                isOpen={isModalOpen}
-                title={modalTitle}
-                onClose={() => setIsModalOpen(false)}
-            >
+    {modalLoading ? (
 
-                {modalLoading ? (
+        <div className="tool-loading">
 
-                    <div className="tool-loading">
+            <div className="tool-spinner"></div>
 
-                        <div className="tool-spinner"></div>
+            <h3>
+                {modalTitle === "📚 Flashcards"
+                    ? "Generating your flashcards..."
+                    : modalTitle === "❓ MCQs"
+                        ? "Preparing your MCQ practice..."
+                        : modalTitle === "📝 Quiz"
+                            ? "Preparing your quiz..."
+                            : modalTitle === "🔑 Key Points"
+                                ? "✨ Organising your Key Points..."
+                                : modalTitle === "🧠 Mind Map"
+                                    ? "🧠 Building your Mind Map..."
+                                    : `Generating ${modalTitle}...`}
+            </h3>
 
-                        <h3>
-                            {modalTitle === "📚 Flashcards"
-                                ? "Generating your flashcards..."
-                                : modalTitle === "❓ MCQs"
-                                    ? "Preparing your MCQ practice..."
-                                    : modalTitle === "📝 Quiz"
-                                        ? "Preparing your quiz..."
-                                        : `Generating ${modalTitle}...`}
-                        </h3>
+            <p>
+                Your AI teacher is preparing your study material.
+            </p>
 
-                        <p>
-                            Your AI teacher is preparing your study material.
-                        </p>
+        </div>
 
-                    </div>
+    ) : (
 
-                ) : (
+        modalTitle === "📚 Flashcards" ? (
 
-                    modalTitle === "📚 Flashcards" ? (
+            <Flashcards cards={modalFlashcards} />
 
-                        <Flashcards cards={modalFlashcards} />
+        ) : modalTitle === "❓ MCQs" ? (
 
-                    ) : modalTitle === "❓ MCQs" ? (
+            <MCQ questions={modalMCQs} />
 
-                        <MCQ questions={modalMCQs} />
+        ) : modalTitle === "📝 Quiz" ? (
 
-                    ) : modalTitle === "📝 Quiz" ? (
+            modalQuiz.length > 0 ? (
 
-                        modalQuiz.length > 0 ? (
+                <Quiz questions={modalQuiz} />
 
-                            <Quiz questions={modalQuiz} />
+            ) : (
 
-                        ) : (
+                <div style={{
+                    padding: "25px",
+                    textAlign: "center",
+                    color: "#d9534f"
+                }}>
+                    <h3>Unable to generate quiz</h3>
+                    <p>
+                        {modalContent || "No questions were returned. Please try again."}
+                    </p>
+                </div>
 
-                            <div style={{
-                                padding: "25px",
-                                textAlign: "center",
-                                color: "#d9534f"
-                            }}>
-                                <h3>Unable to generate quiz</h3>
-                                <p>
-                                    {modalContent || "No questions were returned. Please try again."}
-                                </p>
-                            </div>
+            )
 
-                        )
+        ) : (
 
-                    ) : (
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {toolTypewriter}
+            </ReactMarkdown>
 
-                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                            {toolTypewriter}
-                        </ReactMarkdown>
+        )
 
-                    )
+    )}
 
-                )}
+</ToolModal>
 
-            </ToolModal>
 
         </div>
 

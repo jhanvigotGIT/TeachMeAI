@@ -429,3 +429,174 @@
 .speech-speed:focus {
     border-color: #4f46e5;
 }
+
+.bookmarkSection {
+    margin-bottom: 18px;
+}
+
+.bookmarkSectionHeader {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 8px;
+}
+
+.bookmarkButton {
+    padding: 7px 12px;
+    border: 1px solid #d9d5ff;
+    border-radius: 8px;
+    background: #f1efff;
+    color: #5146e5;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.bookmarkButton:hover {
+    background: #5146e5;
+    color: white;
+}
+/* BOOKMARK BUTTON */
+
+.bookmarkSectionHeader {
+    display: flex;
+    justify-content: flex-end;
+    margin: 8px 0 12px;
+}
+
+.bookmarkButton {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+
+    padding: 7px 12px;
+
+    border: 1px solid #e0dcff;
+    border-radius: 20px;
+
+    background: #f8f7ff;
+    color: #6255d9;
+
+    font-size: 12px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: all 0.25s ease;
+}
+
+.bookmarkButton:hover:not(:disabled) {
+    background: #eeeaff;
+    border-color: #b7adff;
+    transform: translateY(-1px);
+}
+
+.bookmarkButton.bookmarkSaved {
+    background: #e9f8ef;
+    border-color: #b9e8c9;
+    color: #22834b;
+
+    cursor: default;
+}
+
+.bookmarkButton:disabled {
+    opacity: 1;
+}
+
+.bookmarkCheck {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 16px;
+    height: 16px;
+
+    border-radius: 50%;
+
+    background: #28a765;
+    color: white;
+
+    font-size: 11px;
+    font-weight: bold;
+}
+
+
+/* BOOKMARK NOTIFICATION */
+
+.bookmarkNotice {
+    position: fixed;
+    top: 25px;
+    right: 25px;
+
+    z-index: 99999;
+
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    padding: 14px 20px;
+
+    background: #eaf8ef;
+    color: #217847;
+
+    border: 1px solid #c4ebd0;
+    border-radius: 12px;
+
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+
+    font-size: 14px;
+    font-weight: 500;
+
+    animation: bookmarkNoticeAppear 0.3s ease;
+}
+
+.bookmarkNoticeIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 22px;
+    height: 22px;
+
+    border-radius: 50%;
+
+    background: #2da765;
+    color: white;
+
+    font-weight: bold;
+}
+
+.bookmarkNoticeError {
+    background: #fff5f5;
+    color: #c24141;
+    border-color: #f2cccc;
+}
+
+.bookmarkNoticeError .bookmarkNoticeIcon {
+    background: #df5555;
+}
+
+
+@keyframes bookmarkNoticeAppear {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+@media (max-width: 600px) {
+    .bookmarkNotice {
+        top: 15px;
+        right: 15px;
+        left: 15px;
+
+        padding: 12px 15px;
+
+        font-size: 12px;
+    }
+}

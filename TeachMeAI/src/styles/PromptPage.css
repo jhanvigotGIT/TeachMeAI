@@ -1,7 +1,8 @@
+/* MAIN PAGE */
 .promptPage {
     min-height: 100vh;
     width: 100%;
-    padding: 30px 20px;
+    padding: 30px 40px;
     box-sizing: border-box;
 }
 
@@ -11,17 +12,27 @@
     position: relative;
 }
 
+/* TOP NAVIGATION */
+.promptTopBar {
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    margin-bottom: 15px;
+    position: relative;
+    z-index: 10;
+}
+
+/* BACK BUTTON */
 .backBtn {
-    position: absolute;
-    top: 0;
-    right: 1;
+    position: relative;
     margin: 0;
 
     padding: 10px 18px;
-    border: 1px solid #dbe5f1;
+    border: 1px solid rgba(99, 102, 241, 0.25);
     border-radius: 25px;
 
-    background: white;
+    background: rgba(255, 255, 255, 0.85);
     color: #183153;
 
     font-size: 14px;
@@ -32,13 +43,22 @@
 }
 
 .backBtn:hover {
-    background: #e8eef7;
+    background: white;
     transform: translateX(-3px);
+    box-shadow: 0 5px 15px rgba(79, 70, 229, 0.12);
 }
 
+/* HEADER */
+.promptPageContainer > .header {
+    margin-bottom: 30px;
+}
+
+/* MAIN CONTENT */
 .promptPageContent {
     text-align: center;
     margin: 30px auto;
+    position: relative;
+    z-index: 1;
 }
 
 .promptPageContent h1 {
@@ -53,9 +73,165 @@
     margin-bottom: 30px;
 }
 
+/* BACKGROUND */
+.prompt-page-bg {
+    min-height: 100vh;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+
+    background: linear-gradient(
+        125deg,
+        #e8edff,
+        #f2eaff,
+        #e3f2ff,
+        #f4eaff
+    );
+
+    background-size: 300% 300%;
+    animation: backgroundFlow 12s ease infinite;
+}
+
+/* BLUE GLOW */
+.prompt-page-bg::before {
+    content: "";
+    position: absolute;
+    width: 450px;
+    height: 450px;
+    top: -150px;
+    left: -100px;
+
+    background: radial-gradient(
+        circle,
+        rgba(100, 149, 255, 0.25),
+        transparent 70%
+    );
+
+    filter: blur(60px);
+    animation: blueGlow 10s ease-in-out infinite alternate;
+    z-index: -1;
+}
+
+/* PURPLE GLOW */
+.prompt-page-bg::after {
+    content: "";
+    position: absolute;
+    width: 450px;
+    height: 450px;
+    bottom: -150px;
+    right: -100px;
+
+    background: radial-gradient(
+        circle,
+        rgba(170, 120, 255, 0.22),
+        transparent 70%
+    );
+
+    filter: blur(60px);
+    animation: purpleGlow 12s ease-in-out infinite alternate;
+    z-index: -1;
+}
+
+/* BACKGROUND ANIMATIONS */
+@keyframes backgroundFlow {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+@keyframes blueGlow {
+    from {
+        transform: translate(0, 0);
+    }
+
+    to {
+        transform: translate(100px, 80px);
+    }
+}
+
+@keyframes purpleGlow {
+    from {
+        transform: translate(0, 0);
+    }
+
+    to {
+        transform: translate(-100px, -80px);
+    }
+}
+
+/* LIGHTWAVE */
+.promptPage {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+}
+
+.promptPage::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 200%;
+    height: 100%;
+
+    background: repeating-linear-gradient(
+        120deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.08) 25%,
+        rgba(255, 255, 255, 0.22) 50%,
+        transparent 75%
+    );
+
+    background-size: 200% 100%;
+    filter: blur(20px);
+    animation: promptLightWave 5s linear infinite;
+
+    pointer-events: none;
+    z-index: -1;
+}
+
+@keyframes promptLightWave {
+    from {
+        transform: translateX(0);
+    }
+
+    to {
+        transform: translateX(50%);
+    }
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .promptPage {
+        padding: 25px 20px;
+    }
+
+    .promptPageContent h1 {
+        font-size: 28px;
+    }
+}
+
 @media (max-width: 600px) {
     .promptPage {
         padding: 20px 14px;
+    }
+
+    .promptTopBar {
+        margin-bottom: 10px;
+    }
+
+    .backBtn {
+        padding: 9px 14px;
+        font-size: 13px;
     }
 
     .promptPageContent h1 {

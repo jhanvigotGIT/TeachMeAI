@@ -1,0 +1,221 @@
+.authPage {
+    min-height: 100vh;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 25px;
+
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+
+    background: linear-gradient(
+        125deg,
+        #e8edff,
+        #f2eaff,
+        #e3f2ff,
+        #f4eaff
+    );
+
+    background-size: 300% 300%;
+    animation: authBackground 12s ease infinite;
+}
+
+/* BLUE GLOW */
+.authPage::before {
+    content: "";
+    position: absolute;
+    width: 550px;
+    height: 550px;
+    top: -180px;
+    left: -100px;
+    border-radius: 50%;
+    background: radial-gradient(
+        circle,
+        rgba(72, 101, 255, 0.55),
+        transparent 75%
+    );
+    filter: blur(65px);
+    animation: authBlueFloat 8s ease-in-out infinite alternate;
+    pointer-events: none;
+    z-index: -1;
+}
+
+/* PURPLE GLOW */
+.authPage::after {
+    content: "";
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    right: -150px;
+    bottom: -200px;
+    border-radius: 50%;
+    background: radial-gradient(
+        circle,
+        rgba(166, 91, 255, 0.5),
+        transparent 75%
+    );
+    filter: blur(70px);
+    animation: authPurpleFloat 9s ease-in-out infinite alternate;
+    pointer-events: none;
+    z-index: -1;
+}
+
+/* AUTHENTICATION CARD */
+.authCard {
+    width: 100%;
+    max-width: 430px;
+    padding: 40px 35px;
+
+    background: rgba(255, 255, 255, 0.78);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    border-radius: 20px;
+
+    box-shadow: 0 15px 45px rgba(66, 75, 150, 0.15);
+
+    position: relative;
+    z-index: 1;
+    text-align: center;
+}
+
+.authCard h1 {
+    font-size: 2rem;
+    color: #111827;
+    margin-bottom: 10px;
+}
+
+.authCard > p {
+    color: #6b7280;
+    margin-bottom: 28px;
+    font-size: 14px;
+}
+
+/* FORM */
+.authCard form {
+    display: flex;
+    flex-direction: column;
+    gap: 17px;
+}
+
+.authCard input {
+    width: 100%;
+    padding: 14px 15px;
+
+    border: 1px solid #d1d5db;
+    border-radius: 9px;
+
+    outline: none;
+    font-size: 14px;
+    background: rgba(255, 255, 255, 0.9);
+    transition: 0.3s;
+}
+
+.authCard input:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+}
+
+/* SUBMIT BUTTON */
+.authCard form button {
+    padding: 14px;
+    border: none;
+    border-radius: 9px;
+
+    background: linear-gradient(110deg, #4f46e5, #7c3aed);
+    color: white;
+
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.authCard form button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(79, 70, 229, 0.3);
+}
+
+.authCard form button:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+/* ERROR AND SUCCESS MESSAGES */
+.authError {
+    color: #dc2626;
+    background: #fee2e2;
+    padding: 10px;
+    border-radius: 7px;
+    font-size: 13px;
+}
+
+.authSuccess {
+    color: #15803d;
+    background: #dcfce7;
+    padding: 10px;
+    border-radius: 7px;
+    font-size: 13px;
+}
+
+/* SWITCH LOGIN/SIGNUP */
+.authCard .authSwitch {
+    margin-top: 24px;
+    margin-bottom: 15px;
+    font-size: 14px;
+    color: #6b7280;
+}
+
+.authSwitch a {
+    color: #4f46e5;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.authSwitch a:hover {
+    text-decoration: underline;
+}
+
+/* BACK TO HOME */
+.backHome {
+    display: inline-block;
+    color: #4f46e5;
+    font-size: 13px;
+    text-decoration: none;
+    margin-top: 5px;
+}
+
+.backHome:hover {
+    text-decoration: underline;
+}
+
+/* ANIMATIONS */
+@keyframes authBackground {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+@keyframes authBlueFloat {
+    from { transform: translate(0, 0) scale(0.9); }
+    to { transform: translate(300px, 200px) scale(1.2); }
+}
+
+@keyframes authPurpleFloat {
+    from { transform: translate(0, 0) scale(0.9); }
+    to { transform: translate(-300px, -200px) scale(1.2); }
+}
+
+/* RESPONSIVE */
+@media (max-width: 480px) {
+    .authCard {
+        padding: 32px 22px;
+    }
+
+    .authCard h1 {
+        font-size: 1.7rem;
+    }
+}

@@ -5,11 +5,18 @@ import LoadingIndicator from './LoadingIndicator';
 import { useNavigate } from 'react-router-dom';
 import { AppContext } from './Context/AppContext';
 import { FaMicrophone, FaStop } from "react-icons/fa";
+import { supabase } from '../lib/supabaseClient';
+import { v4 as uuidv4 } from 'uuid';
 
 function PromptSection({ pdfText, setAiResponse, loading, setLoading, loadinstage, setLoadingstage }) {
 
     const navigate = useNavigate();
-    const { setMessages } = useContext(AppContext);
+   const {
+    setMessages,
+    user,
+    pdfFile,
+    setCurrentStudyId
+} = useContext(AppContext);
 
     const [usePrompt, setuserPrompt] = useState("");
     const [selectedStyle, setSelectedStyle] = useState("");
@@ -169,6 +176,54 @@ function PromptSection({ pdfText, setAiResponse, loading, setLoading, loadinstag
                 role: "assistant",
                 text: response,
             }]);
+console.log("Logged-in user:", user);
+console.log("Uploaded PDF file:", pdfFile);
+console.log("Starting Supabase save...");
+            // Save study session for logged-in users
+if (user && pdfFile) {
+    try {
+        // Create a unique PDF storage path
+        const fileName = pdfFile.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+        const storagePath = `${user.id}/${uuidv4()}-${fileName}`;
+
+        // Upload PDF to Supabase Storage
+        const { error: uploadError } = await supabase.storage
+            .from('study-pdfs')
+            .upload(storagePath, pdfFile, {
+                contentType: 'application/pdf'
+            });
+
+        if (uploadError) {
+            throw uploadError;
+        }
+
+        // Save study details in the database
+        const { data: savedStudy, error: insertError } = await supabase
+    .from('study_history')
+    .insert({
+        user_id: user.id,
+        pdf_name: pdfFile.name,
+        storage_path: storagePath,
+        extracted_text: pdfText,
+        explanation: response,
+        learning_prompt: usePrompt
+    })
+    .select('id')
+    .single();
+
+if (insertError) {
+    throw insertError;
+}
+
+setCurrentStudyId(savedStudy.id);
+
+        console.log("Study session saved successfully!");
+
+    } catch (saveError) {
+        console.error("Study session saving error:", saveError);
+        alert("Your explanation was generated, but we couldn't save your study session.");
+    }
+}
 
             // Show success state
             setLoadingstage("done");
@@ -271,7 +326,7 @@ function PromptSection({ pdfText, setAiResponse, loading, setLoading, loadinstag
     transition: "all 0.25s ease"
 }}
                     >
-                       {isListening ? <FaStop /> : <FaMicrophone />}
+                        {isListening ? <FaStop /> : <FaMicrophone />}
                     </button>
 
                 </div>

@@ -1,0 +1,208 @@
+.savedTopicsPage {
+    min-height: 100vh;
+    padding: 40px 7%;
+    background: #f7f7ff;
+}
+
+.savedTopicsHeader {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.savedTopicsHeader > button {
+    display: block;
+    margin-bottom: 30px;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 8px;
+    background: #e9e7ff;
+    color: #5146e5;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.savedTopicsHeader h1 {
+    color: #25234a;
+    font-size: 32px;
+    margin-bottom: 10px;
+}
+
+.savedTopicsHeader p {
+    color: #777;
+}
+
+.savedTopicsContainer {
+    max-width: 1000px;
+    margin: auto;
+}
+
+.savedTopicCard {
+    background: white;
+    border: 1px solid #e8e6ff;
+    border-radius: 14px;
+    padding: 25px;
+    margin-bottom: 25px;
+    box-shadow: 0 5px 20px rgba(40, 35, 100, 0.06);
+}
+
+.savedTopicTop {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 15px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 18px;
+}
+
+.savedLabel {
+    color: #6559e8;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.savedTopicTop h2 {
+    color: #29264d;
+    margin: 8px 0;
+    font-size: 21px;
+}
+
+.savedPdfName {
+    color: #888;
+    font-size: 13px;
+}
+
+.removeBookmarkBtn {
+    border: none;
+    background: #fff0f0;
+    color: #e34c4c;
+    width: 35px;
+    height: 35px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 17px;
+}
+
+.savedTopicContent {
+    padding: 15px 0;
+    color: #444;
+    line-height: 1.7;
+    overflow-wrap: anywhere;
+}
+
+.savedTopicContent h1,
+.savedTopicContent h2,
+.savedTopicContent h3 {
+    color: #35306d;
+}
+
+.savedTopicContent pre {
+    overflow-x: auto;
+    padding: 15px;
+    background: #f3f2fa;
+    border-radius: 8px;
+}
+
+.savedTopicContent table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.savedTopicContent th,
+.savedTopicContent td {
+    border: 1px solid #ddd;
+    padding: 9px;
+}
+
+.savedTopicFooter {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    border-top: 1px solid #eee;
+    padding-top: 18px;
+}
+
+.savedTopicFooter span {
+    color: #999;
+    font-size: 12px;
+}
+
+.openOriginalBtn {
+    padding: 10px 16px;
+    border: none;
+    border-radius: 8px;
+    background: #5146e5;
+    color: white;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.openOriginalBtn:hover {
+    background: #4035c7;
+}
+
+.emptySavedTopics {
+    text-align: center;
+    background: white;
+    padding: 60px 20px;
+    border-radius: 15px;
+}
+
+.emptySavedTopics span {
+    font-size: 45px;
+}
+
+.emptySavedTopics h2 {
+    color: #29264d;
+    margin: 15px 0;
+}
+
+.emptySavedTopics p {
+    color: #888;
+    margin-bottom: 20px;
+}
+
+.emptySavedTopics button {
+    background: #5146e5;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 11px 20px;
+    cursor: pointer;
+}
+
+.savedLoading {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #5146e5;
+    font-size: 18px;
+}
+
+.savedError {
+    color: #e34c4c;
+    text-align: center;
+}
+
+@media (max-width: 600px) {
+
+    .savedTopicsPage {
+        padding: 25px 15px;
+    }
+
+    .savedTopicCard {
+        padding: 17px;
+    }
+
+    .savedTopicFooter {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .openOriginalBtn {
+        width: 100%;
+    }
+
+}

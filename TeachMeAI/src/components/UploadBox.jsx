@@ -1,8 +1,11 @@
-import React, { useRef, useState, useEffect } from 'react'
+import React, { useRef, useState, useEffect,useContext } from 'react'
 import "../styles/UploaBox.css"
 import { extractTextFromPDF } from "../services/pdfService";
 
+import { AppContext } from './Context/AppContext';
+
 function UploadBox({ setPdfText,onContinue  }) {
+    const { setPdfFile } = useContext(AppContext);
     const [pdf, setpdf] = useState(null);
     const fileInputRef = useRef(null);
     const [isExtracted, setIsExtracted] = useState(false);
@@ -10,6 +13,7 @@ function UploadBox({ setPdfText,onContinue  }) {
     const continueBtnRef = useRef(null);
     const handleFile = async (file) => {
     setpdf(file);
+    setPdfFile(file);
     setIsExtracted(false);
 
     const text = await extractTextFromPDF(file);

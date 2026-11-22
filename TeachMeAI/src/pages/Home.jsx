@@ -6,24 +6,27 @@ import { AppContext } from '../components/Context/AppContext'
 import "../styles/Home.css"
 
 function Home() {
-  const { pdfText, setPdfText } = useContext(AppContext)
-  const navigate = useNavigate()
 
-  return (
-    <div className='homeContainer'>
-      <div className='container'>
-        <Header />
+    const { setPdfText } = useContext(AppContext)
 
-       <UploadBox
-    setPdfText={setPdfText}
-    onContinue={() => navigate("/choose-prompt")}
-/>
+    const navigate = useNavigate()
 
-       
+    return (
+        <div className='homeContainer'>
 
-      </div>
-    </div>
-  )
+            <div className='container'>
+
+                <Header />
+
+                <UploadBox
+                    setPdfText={setPdfText}
+                    onContinue={() => navigate("/choose-prompt")}
+                />
+
+            </div>
+
+        </div>
+    )
 }
 
 export default Home

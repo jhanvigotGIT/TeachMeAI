@@ -7,15 +7,12 @@ function ToolModal({ isOpen, title, onClose, children }) {
     const [showModal, setShowModal] = useState(isOpen);
 
     useEffect(() => {
-
         if (isOpen) {
             setShowModal(true);
         }
-
     }, [isOpen]);
 
     useEffect(() => {
-
         if (isOpen) {
             document.body.style.overflow = "hidden";
         } else {
@@ -25,20 +22,22 @@ function ToolModal({ isOpen, title, onClose, children }) {
         return () => {
             document.body.style.overflow = "";
         };
-
     }, [isOpen]);
 
     const handleClose = () => {
-
         setShowModal(false);
 
         setTimeout(() => {
             onClose();
         }, 300);
-
     };
 
     if (!isOpen && !showModal) return null;
+
+    const modalClass =
+        title === "📚 Flashcards" ? "flashcard-modal" :
+        title === "🔑 Key Points" ? "keypoints-modal" :
+        title === "🧠 Mind Map" ? "mindmap-modal" : "";
 
     return createPortal(
 
@@ -48,7 +47,7 @@ function ToolModal({ isOpen, title, onClose, children }) {
         >
 
             <div
-                className={`tool-modal ${title === "📚 Flashcards" ? "flashcard-modal" : ""} ${showModal ? "show" : "hide"}`}
+                className={`tool-modal ${modalClass} ${showModal ? "show" : "hide"}`}
                 onClick={(e) => e.stopPropagation()}
             >
 
@@ -66,7 +65,9 @@ function ToolModal({ isOpen, title, onClose, children }) {
                 </div>
 
                 <div className="tool-modal-body">
-                    {children}
+                    <div className="tool-modal-content">
+                        {children}
+                    </div>
                 </div>
 
             </div>
@@ -76,7 +77,6 @@ function ToolModal({ isOpen, title, onClose, children }) {
         document.body
 
     );
-
 }
 
 export default ToolModal;
