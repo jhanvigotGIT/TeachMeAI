@@ -14,7 +14,6 @@
     "@google/generative-ai": "^0.24.1",
     "@supabase/supabase-js": "^2.119.2",
     "jspdf": "^4.2.1",
-    "kokoro-js": "^1.2.1",
     "marked": "^18.2.0",
     "pdfjs-dist": "^3.11.174",
     "pdfmake": "^0.2.20",
